@@ -18,13 +18,28 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 DATABASES = {
     'default': dj_database_url.parse(
         "postgresql://{1}:\
 {0}@ep-shiny-term-a1sg4tag-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&\
-channel_binding=require".format(os.environ.get('neonpass'), os.environ.get('dbuser')),
+channel_binding=require".format(os.environ.get('NEON_PASS'), os.environ.get('DB_USER')),
         conn_max_age=0
     )
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://{0}:{1}@redis-15231.c56.east-us.azure.cloud.\
+redislabs.com:15231".format(os.environ.get('REDIS_USER'), os.environ.get('REDIS_PASS')),
+        "OPTIONS": {
+        }
+    }
 }
 
 

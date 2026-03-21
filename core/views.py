@@ -3,6 +3,12 @@ from rest_framework.response import Response
 from .models import URL
 from .serializers import URLSerializer
 from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponseNotFound, HttpResponse
+import logging
+from django.core.cache import cache
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 @api_view(['POST'])
 def create_short_url(request):
@@ -14,9 +20,35 @@ def create_short_url(request):
         })
     return Response(serializer.errors, status=400)
 
-
 def redirect_url(request, code):
-    url_obj = get_object_or_404(URL, short_code=code)
-    url_obj.clicks += 1
-    url_obj.save()
-    return redirect(url_obj.original_url)
+    cache_key = f"url:{code}"
+    cacheinfo = "cache hit"
+
+    try:
+        original_url = cache.get(cache_key)
+
+        if not original_url:
+            try:
+                url_obj = get_object_or_404(URL, short_code=code)
+            except Exception as e:
+                return HttpResponseNotFound("This URL is not registered with us, kindly check the spelling")
+            original_url = url_obj.original_url
+
+            cache.set(cache_key, original_url, timeout=3600)
+
+            url_obj.clicks += 1
+            url_obj.save()
+            cacheinfo = "cache miss, going in db"
+        # else:
+        #     # Optional: still track clicks (tradeoff discussion point)
+        #     url_obj = URL.objects.filter(short_code=code).first()
+        #     if url_obj:
+        #         url_obj.clicks += 1
+        #         url_obj.save()
+        logging.info(cacheinfo)
+        return redirect(original_url)
+    except Exception as e:
+        # Log the error (not shown here for brevity)
+        logging.error(f"Cache error: {e}")
+        return HttpResponse("Some error occurred while processing your request." +
+        "Sorry for the inconvenience.", status=500)
