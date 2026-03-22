@@ -61,7 +61,7 @@ DEBUG = False
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
