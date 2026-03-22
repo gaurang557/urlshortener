@@ -24,6 +24,8 @@ try:
 except ImportError:
     pass
 
+redis_user=os.environ.get('REDIS_USER')
+redis_pass=os.environ.get('REDIS_PASS')
 DATABASES = {
     'default': dj_database_url.parse(
         "postgresql://{1}:\
@@ -36,11 +38,16 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://{0}:{1}@redis-15231.c56.east-us.azure.cloud.\
-redislabs.com:15231".format(os.environ.get('REDIS_USER'), os.environ.get('REDIS_PASS')),
+redislabs.com:15231".format(redis_user, redis_pass),
         "OPTIONS": {
         }
     }
 }
+CELERY_BROKER_URL = f"redis://{redis_user}:{redis_pass}@redis-15231.c56.east-us.azure.cloud.\
+redislabs.com:15231"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_ALWAYS_EAGER = False
 
 
 # Quick-start development settings - unsuitable for production
