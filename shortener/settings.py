@@ -57,7 +57,9 @@ CELERY_TASK_ALWAYS_EAGER = False
 SECRET_KEY = 'django-insecure-dv*ns3ei7t!p3im8w36wr%@93599)=c6)l+%dt8a%_#p!pm12x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+STATIC_URL = '/static/'
+STATIC_ROOT = 'staticfiles'
 
 ALLOWED_HOSTS = []
 
@@ -72,6 +74,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "core",
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [

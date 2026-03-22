@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+</head>
+<body>
+    <h2>🔗 URL Shortener</h2>
+
+    <form id="shorten-form">
+        <input type="text" id="url" placeholder="Enter URL" required />
+        <button type="submit">Shorten</button>
+    </form>
+
+    <p id="result"></p>
+
+    <script>
+        const form = document.getElementById("shorten-form");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            document.getElementById("result").innerHTML = "Processing your request";
+            const url = document.getElementById("url").value;
+
+            const response = await fetch("/api/shorten/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ original_url: url })
+            });
+
+            const data = await response.json();
+
+            if (data.short_url) {
+                document.getElementById("result").innerHTML =
+                    `<a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+            } else {
+                document.getElementById("result").innerText = "Error shortening URL (Enter a valid URL, example -> URL should start with http/https)";
+            }
+        });
+    </script>
+</body>
+</html>

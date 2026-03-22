@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.http import HttpResponseNotFound, HttpResponse
 from django.core.cache import cache
 from rest_framework.decorators import api_view
@@ -11,6 +11,8 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def index(request):
+    return render(request, "index.html")
 
 @api_view(['POST'])
 @ratelimited
