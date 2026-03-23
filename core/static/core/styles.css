@@ -16,3 +16,19 @@ button{
 .copy{
     background: rgb(118, 244, 76);
 }
+.logo {
+    margin-bottom: 5px;
+    font-size: 28px;
+    color: #333;
+}
+
+.tagline {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 20px;
+}
+.footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #aaa;
+}
