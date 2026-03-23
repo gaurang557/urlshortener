@@ -8,5 +8,11 @@ body {
     height: 100vh;
     margin: 0;
 }
-
-
+button{
+    background: rgb(75, 158, 241);
+    border-radius: 15px;
+    color: white;
+}
+.copy{
+    background: rgb(118, 244, 76);
+}

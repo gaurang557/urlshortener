@@ -17,6 +17,17 @@
 
     <script>
         const form = document.getElementById("shorten-form");
+        function copyToClipboard(url) {
+            navigator.clipboard.writeText(url)
+                .then(() => {
+                    const btn = document.getElementById("copy");
+                    btn.classList.add("copy");
+                    btn.innerHTML = "Copied!";
+                })
+                .catch(err => {
+                    console.error("Failed to copy: ", err);
+                });
+        }
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -34,10 +45,13 @@
             const data = await response.json();
 
             if (data.short_url) {
-                document.getElementById("result").innerHTML =
-                    `<a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+                document.getElementById("result").innerHTML = `
+                    <a href="${data.short_url}" target="_blank">${data.short_url}</a>
+                    <button id="copy" onclick="copyToClipboard('${data.short_url}')">Copy</button>
+                `;
             } else {
-                document.getElementById("result").innerText = "Error shortening URL (Enter a valid URL, example -> URL should start with http/https)";
+                document.getElementById("result").innerText =
+                    "Error shortening URL (Enter a valid URL, example -> URL should start with http/https)";
             }
         });
     </script>
