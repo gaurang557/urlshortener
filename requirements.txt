@@ -8,3 +8,4 @@ celery
 django-redis
 gunicorn
 dj_database_url
+whitenoise

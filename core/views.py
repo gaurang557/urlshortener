@@ -20,8 +20,10 @@ def create_short_url(request):
     serializer = URLSerializer(data=request.data)
     if serializer.is_valid():
         obj = serializer.save()
+        domain = request.get_host()
+        scheme = request.scheme
         return Response({
-            "short_url": f"http://localhost:8000/{obj.short_code}"
+            "short_url": f"{scheme}://{domain}/{obj.short_code}"
         })
     return Response(serializer.errors, status=400)
 
@@ -42,10 +44,6 @@ def redirect_url(request, code):
             cacheinfo = "cache miss, going in db"
         else:
             increment_clicks.delay(code)
-            # url_obj = URL.objects.filter(short_code=code).first()
-            # if url_obj:
-            #     url_obj.clicks += 1
-            #     url_obj.save()
         logging.info(cacheinfo)
         return redirect(original_url)
     except Exception as e:
