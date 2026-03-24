@@ -89,3 +89,5 @@ def resolve_url(request, code):
         "source": source,
         "response_time_ms": round(duration * 1000, 2)
     })
+def live(request):
+    return HttpResponse("Alive", status=200)
