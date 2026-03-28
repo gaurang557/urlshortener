@@ -1,6 +1,6 @@
 # 🔗 Scalable URL Shortener
 
-A production-ready URL shortener built with Django, designed to handle high traffic with caching, rate limiting, and asynchronous processing.
+A URL shortener built with Django, designed to handle high traffic with caching, rate limiting, and asynchronous processing.
 
 ---
 ## 📌 Features
@@ -8,7 +8,6 @@ A production-ready URL shortener built with Django, designed to handle high traf
 - Fast redirection using Redis caching
 - IP-based rate limiting to prevent abuse
 - Asynchronous click tracking using Celery
-- RESTful APIs with Django REST Framework
 
 ## 🚀 Live Demo
 https://urlshortener-prjs.onrender.com
@@ -16,7 +15,7 @@ https://urlshortener-prjs.onrender.com
 ## Swagger
 https://urlshortener-prjs.onrender.com/swagger
 
-Usage:
+Usage of swagger:
 - create short_code for your url using /shorten/ method (rate limited to 10/min)
 - Hit the /resolve/short_code method
 - At the first request the server would fetch data from database 
