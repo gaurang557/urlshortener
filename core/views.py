@@ -49,17 +49,16 @@ def redirect_url(request, code):
         original_url = cache.get(cache_key)
         if not original_url:
             try:
-                url_obj = get_object_or_404(URL, short_code=code)
+                # url_obj = get_object_or_404(URL, short_code=code)
+                url_obj = URL.objects.only("original_url").filter(short_code=code).first()
             except Exception as e:
                 return HttpResponseNotFound("This URL is not registered with us, kindly check the spelling")
             original_url = url_obj.original_url
 
             cache.set(cache_key, original_url, timeout=3600)
-            increment_clicks.delay(code)
             cacheinfo = "cache miss, going in db"
-        else:
-            increment_clicks.delay(code)
         logging.info(cacheinfo)
+        increment_clicks.delay(code)
         return redirect(original_url)
     except Exception as e:
         # Log the error (not shown here for brevity)
