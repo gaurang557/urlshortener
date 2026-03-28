@@ -58,7 +58,6 @@ def redirect_url(request, code):
 
             cache.set(cache_key, original_url, timeout=3600)
             cacheinfo = "cache miss, going in db"
-        logging.info(cacheinfo)
         try:
             cache.incr(key)
         except:
