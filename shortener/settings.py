@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 import dj_database_url
-
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,13 +24,15 @@ try:
 except ImportError:
     pass
 
-redis_user=os.environ.get('REDIS_USER')
-redis_pass=os.environ.get('REDIS_PASS')
+REDIS_USER=os.environ.get('REDIS_USER')
+REDIS_PASS=os.environ.get('REDIS_PASS')
+DB_USER = os.environ.get('DB_USER')
+NEON_PASS = os.environ.get('NEON_PASS')
+HOST = os.environ.get('HOST')
 DATABASES = {
     'default': dj_database_url.parse(
-        "postgresql://{1}:\
-{0}@ep-shiny-term-a1sg4tag-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&\
-channel_binding=require".format(os.environ.get('NEON_PASS'), os.environ.get('DB_USER')),
+        f"postgresql://{DB_USER}:{NEON_PASS}@{HOST}/neondb?sslmode=require&\
+channel_binding=require",
         conn_max_age=0
     )
 }
@@ -38,16 +40,23 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://{0}:{1}@redis-15231.c56.east-us.azure.cloud.\
-redislabs.com:15231".format(redis_user, redis_pass),
+redislabs.com:15231".format(REDIS_USER, REDIS_PASS),
         "OPTIONS": {
         }
     }
 }
-CELERY_BROKER_URL = f"redis://{redis_user}:{redis_pass}@redis-15231.c56.east-us.azure.cloud.\
+CELERY_BROKER_URL = f"redis://{REDIS_USER}:{REDIS_PASS}@redis-15231.c56.east-us.azure.cloud.\
 redislabs.com:15231"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TASK_ALWAYS_EAGER = False
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE = {
+    'flush-clicks-every-120-seconds': {
+        'task': 'core.tasks.flush_click_counts',
+        'schedule': 120.0,
+    },
+}
 
 
 # Quick-start development settings - unsuitable for production
@@ -75,7 +84,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "core",
-    "drf_yasg"
+    "drf_yasg",
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -86,7 +96,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'shortener.urls'
