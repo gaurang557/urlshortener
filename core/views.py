@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from .models import URL
 from .serializers import URLSerializer
 from .utils import *
-from .tasks import increment_clicks
+# from .tasks import increment_clicks
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -45,6 +45,7 @@ def create_short_url(request):
 def redirect_url(request, code):
     cache_key = f"url:{code}"
     cacheinfo = "cache hit"
+    key = f"count:{code}"
     try:
         original_url = cache.get(cache_key)
         if not original_url:
@@ -58,7 +59,10 @@ def redirect_url(request, code):
             cache.set(cache_key, original_url, timeout=3600)
             cacheinfo = "cache miss, going in db"
         logging.info(cacheinfo)
-        increment_clicks.delay(code)
+        try:
+            cache.incr(key)
+        except:
+            cache.set(key, 1, timeout=600)
         return redirect(original_url)
     except Exception as e:
         # Log the error (not shown here for brevity)
