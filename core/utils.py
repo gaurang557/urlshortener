@@ -14,7 +14,7 @@ def ratelimited(func):
             )
         return func(request)
     return wrapper
-def is_rate_limited(ip, limit=10, window=60):
+def is_rate_limited(ip, limit=100, window=60):
     key = f"rate_limit:{ip}"
     
     data = cache.get(key)
