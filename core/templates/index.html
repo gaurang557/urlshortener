@@ -50,6 +50,10 @@
                 document.getElementById("result").innerHTML = `
                     <a href="${data.short_url}" target="_blank">${data.short_url}</a>
                     <button id="copy" onclick="copyToClipboard('${data.short_url}')">Copy</button>
+                    <button onclick="window.open('${data.short_url}', '_blank')">
+                    Go to Website
+                    </button>
+
                 `;
             } else {
                 document.getElementById("result").innerText =
@@ -58,7 +62,8 @@
         });
     </script>
     <p class="footer">
-    Built by Gaurang • Backend Project
+    Built by Gaurang • <a target="_blank" style="color: #aaa;" href="https://github.com/gaurang557/urlshortener">
+        Git repo</a>
 </p>
 </body>
 </html>
