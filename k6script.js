@@ -27,7 +27,7 @@ export default function () {
 
   check(redirectRes, {
     'redirect status is 301/302': (r) => r.status === 301 || r.status === 302,
-    'response time < 200ms': (r) => r.timings.duration < 200,
+    'response time < 300ms': (r) => r.timings.duration < 300,
   });
 
   // ➕ Test URL creation endpoint

@@ -28,7 +28,7 @@ def index(request):
     responses={200: openapi.Response('Short URL created')}
 )
 @api_view(['POST'])
-# @ratelimited
+@ratelimited
 def create_short_url(request):
     serializer = URLSerializer(data=request.data)
     if serializer.is_valid():
