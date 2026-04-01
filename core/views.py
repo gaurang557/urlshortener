@@ -35,6 +35,7 @@ def create_short_url(request):
         obj = serializer.save()
         domain = request.get_host()
         scheme = request.scheme
+        cache.set(f"url:{obj.short_code}", obj.original_url, timeout=3600)
         return Response({
             "short_code": obj.short_code,
             "short_url": f"{scheme}://{domain}/{obj.short_code}",
@@ -42,9 +43,9 @@ def create_short_url(request):
         })
     return Response(serializer.errors, status=400)
 
+@ratelimited
 def redirect_url(request, code):
     cache_key = f"url:{code}"
-    cacheinfo = "cache hit"
     key = f"count:{code}"
     try:
         original_url = cache.get(cache_key)
@@ -52,12 +53,11 @@ def redirect_url(request, code):
             try:
                 # url_obj = get_object_or_404(URL, short_code=code)
                 url_obj = URL.objects.only("original_url").filter(short_code=code).first()
+                original_url = url_obj.original_url
+
+                cache.set(cache_key, original_url, timeout=3600)
             except Exception as e:
                 return HttpResponseNotFound("This URL is not registered with us, kindly check the spelling")
-            original_url = url_obj.original_url
-
-            cache.set(cache_key, original_url, timeout=3600)
-            cacheinfo = "cache miss, going in db"
         try:
             cache.incr(key)
         except:
@@ -70,6 +70,7 @@ def redirect_url(request, code):
         "Sorry for the inconvenience.", status=500)
     
 @api_view(['GET'])
+@ratelimited
 def resolve_url(request, code):
     start = time.time()
 

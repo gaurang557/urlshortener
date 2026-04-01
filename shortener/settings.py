@@ -33,8 +33,7 @@ DATABASES = {
     'default': dj_database_url.parse(
         f"postgresql://{DB_USER}:{NEON_PASS}@{HOST}/neondb?sslmode=require&\
 channel_binding=require",
-        conn_max_age=0
-    )
+        conn_max_age= 600)
 }
 CACHES = {
     "default": {

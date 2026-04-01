@@ -21,45 +21,116 @@ Usage of swagger:
 - At the first request the server would fetch data from database 
 - Second time the response would be faster, the data would be fetched from cache
 
-
----
-
-## 🏗️ Architecture
-        ┌───────────────┐
-        │     User      │
-        └──────┬────────┘
-               │
-               ▼
-        ┌───────────────┐
-        │   Django API  │
-        │   (Gunicorn)  │
-        └──────┬────────┘
-               │
-       ┌───────┴────────┐
-       ▼                ▼
-┌──────────────┐ ┌──────────────┐
-│ Redis Cache  │ │ PostgreSQL   │
-│ (Hot Data)   │ │ (Persistent) │
-└──────┬───────┘ └──────┬───────┘
-       │                │
-       └────────┬───────┘
-                ▼
-        ┌───────────────┐
-        │ Celery Worker │
-        │ (Async Tasks) │
-        └───────────────┘
-
----
-
 ## ⚙️ Tech Stack
+Technology       Decision Reason
+Django           Rapid development, built-in ORM 
+PostgreSQL       (Neon)Relational, ACID compliant, free managed tier 
+Redis            Low latency caching for redirects
+Celery+Beat      Async analytics, non-blocking redirect flow
+Gunicorn         Production WSGI server
+Render           Deployment platform
 
-- Backend: Django, Django REST Framework  
-- Cache & Broker: Redis  
-- Async Processing: Celery  
-- Database: PostgreSQL  
-- Deployment: Docker / Render
+## Architecture
+Client → Django → Redis Cache → PostgreSQL (Neon)
+                → Celery Worker → Analytics Pipeline
+                → Celery Beat → Scheduled Tasks
+![alt text](image.png)
 
----
+## Core Features
+
+Fast redirection via Redis cache layer
+Rate limiting (abuse prevention)
+Click analytics pipeline (async via Celery)
+
+## Caching Strategy
+
+Cache-aside pattern for redirects
+Redis stores short_code → original_url
+Cache hit avoids DB query entirely
+TTL based expiry
+Cache miss falls back to PostgreSQL
+
+## Analytics Pipeline
+
+Redirect hit triggers Redis counter updation for the short_code key(atomic process), if the key does not exist then its created.
+Celery beat pushes the periodic function in redis (also used as a message broker) at an interval of 120 seconds
+Celery worker fetches the task from redis and fetches all keys from redis with a specific pattern, and
+updates the count in db against each key in backgrund.
+Keeps redirect latency unaffected by analytics writes
+
+## Rate Limiting
+
+created a custom ratelimiter function and applied as a decorator over redirect and creation endpoints.
+Requests limited to 100/min per IP.
+Prevents abuse
+
+## Load Testing — K6 Results
+
+Tool: K6
+Findings:
+
+Bottleneck discovered: DB connection exhaustion
+Root cause: conn_max_age=0 — new connection per request
+Under concurrent load, connections exceeded Neon's limit
+Service required restart after connection pool failure
+
+
+## Deliberate Decisions
+
+No authentication — intentional, reduces friction for testers. Production design would use JWT with rate limiting per user
+psycopg2 over psycopg3 — requirements constraint, pool=True not available, solved via Neon PgBouncer instead
+Render free tier — accepted constraint, load balancing limitation documented above
+
+## Bottlenecks & How I Solved Them
+Problem 1: DB Connection Exhaustion
+conn_max_age=0 → new DB connection every request
+100 concurrent requests → 100 connections → Neon limit hit → crash
+Fix applied:
+conn_max_age=600  # persistent connections per worker + Neon pooled connection string (PgBouncer)
+# Django worker → PgBouncer → PostgreSQL
+
+## Problem 2: No Load Balancing on Render Free Tier**
+```
+Single instance → no horizontal scaling
+Heavy load → single worker bottleneck
+```
+Designed fix (infrastructure constraint):
+```
+Load Balancer
+      ↓
+Django Instance 1 ─┐
+Django Instance 2 ─┼→ Redis → PgBouncer → PostgreSQL  
+Django Instance 3 ─┘
+```
+
+### Capacity Estimation
+```
+Assumptions:
+- 100:1 read/write ratio (redirects >> creations)
+- 1000 daily active users
+- Avg 10 redirects/user/day = 10,000 redirects/day
+
+Throughput:
+- ~0.12 redirects/sec average
+- Peak ~10x = 1.2 redirects/sec
+
+Storage:
+- 1 URL record ≈ 500 bytes
+- 10,000 URLs/month = ~5MB/month
+- Redis cache for top 20% URLs covers 80% of traffic (Pareto)
+
+DB Connections:
+- Gunicorn workers = 2 × CPU cores + 1
+- conn_max_age=600 → 1 connection per worker
+- PgBouncer pools these → stays within Neon free tier limits
+11. What I'd Do With More Infrastructure
+
+PgBouncer in transaction mode (currently handled by Neon)
+Horizontal scaling behind a load balancer
+Read replica for redirect lookups (90% of traffic is reads)
+Prometheus + Grafana for metrics
+JWT auth with per-user URL namespacing
+
 
 ## 🔌 API Endpoints
 
@@ -84,14 +155,6 @@ Response:
 GET /<short_code>/
 
 Redirects to original URL
-
----
-
-## 🧠 Key Design Decisions
-
-- Used cache-aside pattern for reducing DB load
-- Implemented rate limiting using Redis to handle abuse
-- Offloaded analytics to Celery to reduce API latency
 
 ---
 
