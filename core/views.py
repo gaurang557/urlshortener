@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from .models import URL
 from .serializers import URLSerializer
 from .utils import *
-# from .tasks import increment_clicks
+from .tasks import increment_count
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -58,10 +58,7 @@ def redirect_url(request, code):
                 cache.set(cache_key, original_url, timeout=3600)
             except Exception as e:
                 return HttpResponseNotFound("This URL is not registered with us, kindly check the spelling")
-        try:
-            cache.incr(key)
-        except:
-            cache.set(key, 1, timeout=600)
+        increment_count.delay(key)
         return redirect(original_url)
     except Exception as e:
         # Log the error (not shown here for brevity)

@@ -20,3 +20,9 @@ def flush_click_counts():
             redis_client.delete(key)
         if c == 0:
             break
+@shared_task
+def increment_count(key):
+        try:
+            cache.incr(key)
+        except:
+            cache.set(key, 1, timeout=600)
