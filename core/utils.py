@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 
 def ratelimited(func):
-    def wrapper(request):
+    def wrapper(request, *args, **kwargs):
         ip = request.META.get('REMOTE_ADDR')
 
         if is_rate_limited(ip):
@@ -12,7 +12,7 @@ def ratelimited(func):
                 {"error": "Rate limit exceeded. Try again later."},
                 status=429
             )
-        return func(request)
+        return func(request,*args, **kwargs)
     return wrapper
 def is_rate_limited(ip, limit=100, window=60):
     key = f"rate_limit:{ip}"
