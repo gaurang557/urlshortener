@@ -12,14 +12,47 @@ A URL shortener built with Django, designed to handle high traffic with caching,
 ## 🚀 Live Demo
 https://urlshortener-prjs.onrender.com
 
+## Load Testing Results — K6
+
+**Environment:** Render free tier (0.1 shared CPU, 512MB RAM)  
+**Tool:** K6  
+**Test:** 50 concurrent VUs, 2m30s duration  
+
+### Final Results
+
+| Metric | Redirect | Shorten |
+|---|---|---|
+| p95 latency | 252ms ✅ | 916ms |
+| p90 latency | 231ms | 880ms |
+| avg latency | 148ms | 847ms |
+| min latency | 94ms | 330ms |
+| failure rate | 0.10% | - |
+| threshold | <300ms ✅ | <500ms |
+
+> Redirect endpoint meets the <300ms p95 threshold.  
+> Shorten endpoint latency attributed to B62 encoding,  
+> DB write + sequence fetch, and cache population on creation.  
+> On dedicated CPU instances, both endpoints are expected  
+> to meet thresholds comfortably (confirmed in local benchmarks).
+
+### Improvement Over Initial Baseline
+
+| Metric | Before | After | Improvement |
+|---|---|---|---|
+| redirect p95 | 3.17s | 252ms | **12x faster** |
+| shorten p95 | 3.35s | 916ms | **3.6x faster** |
+| service stability | crashed | stable | ✅ |
+
+### Optimisations That Drove Improvement
+
+1. Separated Gunicorn, Celery worker, Celery beat into independent Render services(as of now running only gunicorn due to render's free tier limitation)
+2. `conn_max_age=600` — persistent DB connections per worker
+3. Neon PgBouncer pooled connection string
+4. Async analytics via Celery — removed Redis incr from redirect hot path  
+5. `--workers 2 --threads 4` — 8 concurrent request slots on free tier
+
 ## Swagger
 https://urlshortener-prjs.onrender.com/swagger
-
-Usage of swagger:
-- create short_code for your url using /shorten/ method (rate limited to 10/min)
-- Hit the /resolve/short_code method
-- At the first request the server would fetch data from database 
-- Second time the response would be faster, the data would be fetched from cache
 
 ## ⚙️ Tech Stack
 Technology       Decision Reason
@@ -34,7 +67,7 @@ Render           Deployment platform
 Client → Django → Redis Cache → PostgreSQL (Neon)
                 → Celery Worker → Analytics Pipeline
                 → Celery Beat → Scheduled Tasks
-![alt text](image.png)
+refer architecture.png
 
 ## Core Features
 
@@ -63,17 +96,6 @@ Keeps redirect latency unaffected by analytics writes
 created a custom ratelimiter function and applied as a decorator over redirect and creation endpoints.
 Requests limited to 100/min per IP.
 Prevents abuse
-
-## Load Testing — K6 Results
-
-Tool: K6
-Findings:
-
-Bottleneck discovered: DB connection exhaustion
-Root cause: conn_max_age=0 — new connection per request
-Under concurrent load, connections exceeded Neon's limit
-Service required restart after connection pool failure
-
 
 ## Deliberate Decisions
 
