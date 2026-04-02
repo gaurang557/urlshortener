@@ -6,7 +6,7 @@ export const options = {
     { duration: '30s', target: 10 },
     { duration: '1m',  target: 25 },
     { duration: '30s', target: 50 },
-    { duration: '30s', target: 0 },
+    { duration: '30s', target: 0 }
   ],
   thresholds: {
     http_req_failed:                      ['rate<0.01'],
@@ -16,7 +16,8 @@ export const options = {
   },
 };
 
-const BASE_URL = 'https://urlshortener-prjs.onrender.com';
+// const BASE_URL = 'https://urlshortener-prjs.onrender.com';
+const BASE_URL = 'http://localhost:8000';
 const shortCodes = ['rmY6HI', 'Bmq17g', 'hlSHWn'];
 
 function testRedirect() {
