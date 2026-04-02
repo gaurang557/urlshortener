@@ -14,7 +14,7 @@ def generate_short_code(length=6):
     return ''.join(random.choice(chars) for _ in range(length))
 
 BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-Offset = int(os.environ.get("SECRETOFFSET"))
+Offset = int(os.environ.get("SECRETOFFSET", 100000))
 
 def encode_base62(num: int) -> str:
     if num == 0:
