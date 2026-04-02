@@ -16,8 +16,7 @@ export const options = {
   },
 };
 
-// const BASE_URL = 'https://urlshortener-prjs.onrender.com';
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = 'https://urlshortener-prjs.onrender.com';
 const shortCodes = ['rmY6HI', 'Bmq17g', 'hlSHWn'];
 
 function testRedirect() {
