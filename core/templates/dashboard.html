@@ -1,0 +1,41 @@
+<h2>Your Dashboard</h2>
+
+<a href="/logout/">Logout</a>
+<a href="/">Home</a>
+
+
+<h3>Your URLs</h3>
+
+{% if urls %}
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Original URL</th>
+            <th>Short URL</th>
+            <th>Clicks</th>
+            <th>Created</th>
+            <th> Actions </th>
+        </tr>
+
+        {% for url in urls %}
+        <tr>
+            <td>{{ url.original_url }}</td>
+            <td>
+                <a href="/{{ url.short_code }}" target="_blank">
+                    {{ request.get_host }}/{{ url.short_code }}
+                </a>
+            </td>
+            <td>{{ url.clicks }}</td>
+            <td>{{ url.created_at }}</td>
+            <td>
+                <a href="{% url 'edit_url' url.id %}">Edit</a> |
+                <a href="{% url 'delete_url' url.id %}" 
+                onclick="return confirm('Are you sure?')">
+                Delete
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No URLs created yet.</p>
+{% endif %}

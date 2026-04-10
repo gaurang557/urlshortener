@@ -7,60 +7,26 @@
 </head>
 <body>
     <h1 class="logo">🚀 NanoLink</h1>
+    {% if user.is_authenticated %}
+    <a href="/dashboard/">Dashboard</a>
+    <a href="/logout/">Logout</a>
+    {% else %}
+    <a href="/login/">Login</a>
+    <a href="/signup">Signup</a>
+
+    {% endif %}
     <p class="tagline">Fast, simple URL shortening</p>
     <h2>🔗 Shorten your url</h2>
-
+    
     <form id="shorten-form">
         <input type="text" id="url" value="https://" placeholder="Enter URL" required />
         <button type="submit">Shorten</button>
     </form>
-
+    
+    {% load static %}
+    <script src="{% static 'core/index.js' %}"></script>
     <p id="result"></p>
 
-    <script>
-        const form = document.getElementById("shorten-form");
-        function copyToClipboard(url) {
-            navigator.clipboard.writeText(url)
-                .then(() => {
-                    const btn = document.getElementById("copy");
-                    btn.classList.add("copy");
-                    btn.innerHTML = "Copied!";
-                })
-                .catch(err => {
-                    console.error("Failed to copy: ", err);
-                });
-        }
-
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            document.getElementById("result").innerHTML = "Processing your request";
-            const url = document.getElementById("url").value;
-
-            const response = await fetch("/api/shorten/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ original_url: url })
-            });
-
-            const data = await response.json();
-
-            if (data.short_url) {
-                document.getElementById("result").innerHTML = `
-                    <a href="${data.short_url}" target="_blank">${data.short_url}</a>
-                    <button id="copy" onclick="copyToClipboard('${data.short_url}')">Copy</button>
-                    <button onclick="window.open('${data.short_url}', '_blank')">
-                    Go to Website
-                    </button>
-
-                `;
-            } else {
-                document.getElementById("result").innerText =
-                    "Error shortening URL (Enter a valid URL, example -> URL should start with http/https)";
-            }
-        });
-    </script>
     <p class="footer">
     Built by Gaurang • <a target="_blank" style="color: #aaa;" href="https://github.com/gaurang557/urlshortener">
         Git repo</a>

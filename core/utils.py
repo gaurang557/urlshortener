@@ -2,7 +2,6 @@ from django.core.cache import cache
 import time
 from rest_framework.response import Response
 
-
 def ratelimited(func):
     def wrapper(request, *args, **kwargs):
         ip = request.META.get('REMOTE_ADDR')

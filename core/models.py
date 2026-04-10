@@ -1,4 +1,5 @@
 from django.db import models, connection
+from django.contrib.auth.models import User
 import string
 import random
 import os
@@ -26,6 +27,7 @@ def encode_base62(num: int) -> str:
         num //= 62
     return ''.join(reversed(result))
 class URL(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     original_url = models.URLField()
     short_code = models.CharField(max_length=10, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -40,6 +42,4 @@ class URL(models.Model):
         if not self.short_code:
             next_id = self.get_next_id()
             self.short_code = encode_base62(next_id + Offset)
-            super().save(*args, **kwargs)
-        else:
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)

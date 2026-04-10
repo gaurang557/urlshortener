@@ -86,6 +86,8 @@ INSTALLED_APPS = [
     "drf_yasg",
     'django_celery_beat'
 ]
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "login"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

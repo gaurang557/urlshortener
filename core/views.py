@@ -1,5 +1,8 @@
 from django.shortcuts import redirect, get_object_or_404, render
 from django.http import HttpResponseNotFound, HttpResponse
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.cache import cache
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -15,6 +18,31 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 def index(request):
     return render(request, "index.html")
+
+def signup_view(request):
+    form = UserCreationForm(request.POST or None)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect("dashboard")
+    return render(request, "signup.html", {"form": form})
+
+def login_view(request):
+    form = AuthenticationForm(request, data=request.POST or None)
+    if form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        return redirect("/")
+    return render(request, "login.html", {"form": form})
+
+@login_required
+def dashboard(request):
+    urls = URL.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "dashboard.html", {"urls": urls})
+
+def logout_view(request):
+    logout(request)
+    return redirect("/")
 
 @swagger_auto_schema(
     method='post',
@@ -32,7 +60,7 @@ def index(request):
 def create_short_url(request):
     serializer = URLSerializer(data=request.data)
     if serializer.is_valid():
-        obj = serializer.save()
+        obj = serializer.save(user = request.user if request.user and request.user.is_authenticated else None)
         domain = request.get_host()
         scheme = request.scheme
         cache.set(f"url:{obj.short_code}", obj.original_url, timeout=3600)
@@ -89,5 +117,26 @@ def resolve_url(request, code):
         "source": source,
         "response_time_ms": round(duration * 1000, 2)
     })
+@login_required
+def delete_url(request, pk):
+    print("deleting")
+    url = get_object_or_404(URL, id=pk, user=request.user)
+    url.delete()
+    return redirect("dashboard")
+
+
+@login_required
+def edit_url(request, pk):
+    url = get_object_or_404(URL, id=pk, user=request.user)
+
+    if request.method == "POST":
+        new_url = request.POST.get("original_url")
+        if new_url:
+            url.original_url = new_url
+            url.save()
+        cache.delete(f"url:{url.short_code}")
+        return redirect("dashboard")
+
+    return render(request, "edit.html", {"url": url})
 def live(request):
     return HttpResponse("Alive", status=200)
