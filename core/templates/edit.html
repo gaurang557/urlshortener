@@ -1,9 +1,132 @@
-<h2>Edit URL</h2>
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit URL | NanoLink</title>
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
 
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="original_url" value="{{ url.original_url }}" required>
-    <button type="submit">Save</button>
-</form>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #d9e1f7;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-<a href="/dashboard/">Back</a>
+        .navbar {
+            display: flex;
+            align-items: center;
+            margin-top: 3%;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: #121826;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links a {
+            color: #60a5fa;
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 18px;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: #121826;
+            padding: 40px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background: #1f2937;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            outline: none;
+            border: 1px solid #3b82f6;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 15px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<div class="navbar">
+    <div class="logo">NanoLink</div>
+    <div class="nav-links">
+        <a href="/dashboard/">Dashboard</a>
+        <a href="/logout/">Logout</a>
+    </div>
+</div>
+
+<!-- ✏️ Edit Card -->
+<div class="container">
+    <div class="card">
+        <h2>Edit URL</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="original_url" value="{{ url.original_url }}" required>
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <a href="/dashboard/" class="back">← Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

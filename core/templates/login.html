@@ -1,8 +1,154 @@
-<h2>Login</h2>
-<a href="/">Home</a>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-</form>
-<a href="/signup/">Create account</a>
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | NanoLink</title>
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #d9e1f7;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            gap: 10%;
+            padding: 20px 40px;
+            background: #121826;
+            align-items: center;
+            margin-top: 3%;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: #121826;
+            padding: 40px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        form p {
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: none;
+            background: #1f2937;
+            color: white;
+        }
+
+        input:focus {
+            outline: none;
+            border: 1px solid #3b82f6;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .error {
+            color: #f87171;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<div class="navbar">
+    <div class="logo">NanoLink</div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+    </div>
+</div>
+
+<!-- 🔐 Login Card -->
+<div class="container">
+    <div class="card">
+        <h2>Welcome back</h2>
+
+        {% if form.errors %}
+            <div class="error">
+                Invalid username or password
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label>Username</label>
+            {{ form.username }}
+
+            <label>Password</label>
+            {{ form.password }}
+
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="footer">
+            Don’t have an account? 
+            <a href="/signup/">Sign up</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

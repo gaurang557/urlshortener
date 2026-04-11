@@ -1,41 +1,160 @@
-<h2>Your Dashboard</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard | NanoLink</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
 
-<a href="/logout/">Logout</a>
-<a href="/">Home</a>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            /* background: #0b0f1a; */
+            background: #d9e1f7;
+            color: white;
+        }
 
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: #121826;
+            align-items: center;
+        }
 
-<h3>Your URLs</h3>
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
 
-{% if urls %}
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>Original URL</th>
-            <th>Short URL</th>
-            <th>Clicks</th>
-            <th>Created</th>
-            <th> Actions </th>
-        </tr>
+        .nav-links a {
+            margin-left: 15px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 18px;
+        }
 
-        {% for url in urls %}
-        <tr>
-            <td>{{ url.original_url }}</td>
-            <td>
-                <a href="/{{ url.short_code }}" target="_blank">
-                    {{ request.get_host }}/{{ url.short_code }}
-                </a>
-            </td>
-            <td>{{ url.clicks }}</td>
-            <td>{{ url.created_at }}</td>
-            <td>
-                <a href="{% url 'edit_url' url.id %}">Edit</a> |
-                <a href="{% url 'delete_url' url.id %}" 
-                onclick="return confirm('Are you sure?')">
-                Delete
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    <p>No URLs created yet.</p>
-{% endif %}
+        .container {
+            padding: 40px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: black;
+        }
+
+        .table-container {
+            background: #121826;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            color: #9ca3af;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        td {
+            border-bottom: 1px solid #1f2937;
+        }
+
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .actions a {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .delete {
+            color: #f87171;
+        }
+
+        .empty {
+            text-align: center;
+            color: #9ca3af;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<div class="navbar">
+    <div class="logo">NanoLink</div>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/logout/">Logout</a>
+    </div>
+</div>
+
+<!-- 📊 Dashboard -->
+<div class="container">
+    <h2> Delete or Edit your existing URLs </h2>
+
+    <div class="table-container">
+        <h3>Your URLs</h3>
+
+        {% if urls %}
+            <table>
+                <tr>
+                    <th>Original URL</th>
+                    <th>Short URL</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for url in urls %}
+                <tr>
+                    <td>{{ url.original_url }}</td>
+
+                    <td>
+                        <a href="/{{ url.short_code }}" target="_blank">
+                            {{ request.get_host }}/{{ url.short_code }}
+                        </a>
+                    </td>
+                    <td>{{ url.created_at|date:"M d, Y H:i" }}</td>
+
+                    <td class="actions">
+                        <a href="{% url 'edit_url' url.id %}">Edit</a>
+                        <a href="{% url 'delete_url' url.id %}" 
+                           class="delete"
+                           onclick="return confirm('Are you sure?')">
+                           Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        {% else %}
+            <div class="empty">
+                <p>No URLs created yet.</p>
+                <a href="/">Create your first short link →</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

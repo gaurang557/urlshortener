@@ -1,6 +1,105 @@
-<h2>Signup</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Signup</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up | NanoLink</title>
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #d9e1f7;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #121826;
+            padding: 40px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        form p {
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: none;
+            background: #1f2937;
+            color: white;
+        }
+
+        input:focus {
+            outline: none;
+            border: 1px solid #3b82f6;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .logo {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+        <div class="logo">NanoLink</div>
+        <div class="nav-links">
+            <a href="/" style="font-size: 18px;">Home</a>
+        </div>
+    <h2>Create your account</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="footer">
+        Already have an account? <a href="/login/">Login</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -4,32 +4,176 @@
     <title>NanoLink | Fast URL Shortener</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'core/styles.css' %}">
-</head>
-<body>
-    <h1 class="logo">🚀 NanoLink</h1>
-    {% if user.is_authenticated %}
-    <a href="/dashboard/">Dashboard</a>
-    <a href="/logout/">Logout</a>
-    {% else %}
-    <a href="/login/">Login</a>
-    <a href="/signup">Signup</a>
 
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            /* background: #0b0f1a; */
+            background: #d9e1f7;
+            color: white;
+        }
+        h1{
+            color: black;
+        }
+        h2{
+            color: black;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: #121826;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+        .nav-links a {
+            margin-left: 15px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+            text-align: center;
+        }
+
+        .tagline {
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #121826;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        p a{
+            color: white;
+        }
+        p button{
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #d0daee;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background: #1f2937;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border: 1px solid #3b82f6;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        #result {
+            margin-top: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #aaa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔝 Navbar -->
+<div class="navbar">
+    <div class="logo">NanoLink</div>
+
+    <div class="nav-links">
+        {% if user.is_authenticated %}
+            <a href="/dashboard/">Dashboard</a>
+            <a href="/logout/">Logout</a>
+        {% else %}
+            <a href="/login/">Login</a>
+            <a href="/signup/">Signup</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<h2>Welcome, {{ user.username }}</h2>
+{% endif %}
+
+<!-- 🎯 Main Content -->
+<div class="container">
+    {% if user.is_authenticated %}
+        <h1>Shorten your long urls instantly</h1>
+    {% else %}
+        <h1>Shorten your long urls instantly, Without needing to signup</h1>
     {% endif %}
     <p class="tagline">Fast, simple URL shortening</p>
-    <h2>🔗 Shorten your url</h2>
-    
-    <form id="shorten-form">
-        <input type="text" id="url" value="https://" placeholder="Enter URL" required />
-        <button type="submit">Shorten</button>
-    </form>
-    
-    {% load static %}
-    <script src="{% static 'core/index.js' %}"></script>
-    <p id="result"></p>
 
-    <p class="footer">
-    Built by Gaurang • <a target="_blank" style="color: #aaa;" href="https://github.com/gaurang557/urlshortener">
-        Git repo</a>
+    <div class="card">
+        <h3>🔗 Paste your URL</h3>
+
+        <form id="shorten-form">
+            {% csrf_token %}
+            <input type="text" id="url" value="https://" placeholder="Enter URL" required />
+            <button type="submit">Shorten</button>
+        </form>
+
+        <p id="result"></p>
+    </div>
+</div>
+
+<!-- ⚙️ Script -->
+<script src="{% static 'core/index.js' %}"></script>
+
+<!-- 🔻 Footer -->
+<p class="footer">
+    Built by Gaurang • 
+    <a target="_blank" style="color: #60a5fa;" href="https://github.com/gaurang557/urlshortener">
+        Git repo
+    </a>
 </p>
+
 </body>
 </html>

@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, get_object_or_404, render
 from django.http import HttpResponseNotFound, HttpResponse
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.cache import cache
